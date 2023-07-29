@@ -58,7 +58,7 @@ function viewDepartments() {
 const db = mysql.createConnection({
     host: 'localhost',
     user: 'root',
-    password: '0v!$@u|!$Dg',
+    password: 'mysqlPASS123',
     database: 'employee_db'
 },
     console.log('successfully connected to the employee_db database')
