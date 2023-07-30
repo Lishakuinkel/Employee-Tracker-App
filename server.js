@@ -67,6 +67,6 @@ const db = mysql.createConnection({
 db.connect((err)=>{
     if(err)throw err;
     console.log("connected to employee_db database");
-
+    firstPrompt();
 });
 
