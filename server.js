@@ -66,7 +66,7 @@ function viewRoles() {
 
 function viewEmployees() {
     console.log("Viewing all Employees");
-    db.query('SELECT a.id, a.first_name, a.last_name, c.title, d.department_name, c.salary, b.first_name AS manager_firstname, b.last_name AS manager_lastname FROM employee a LEFT JOIN employee b ON a.manager_id = b.id INNER JOIN role c ON a.role_id = c.id INNER JOIN department d ON d.id = c.department_id', (err, results) => {
+    db.query('SELECT a.id, a.first_name, a.last_name, c.title, d.department_name, c.salary, b.first_name AS manager_firstname, b.last_name AS manager_lastname FROM employee a LEFT JOIN employee b ON a.manager_id = b.id LEFT JOIN role c ON a.role_id = c.id LEFT JOIN department d ON d.id = c.department_id', (err, results) => {
         err ? console.error(err) : console.table(results);
         firstPrompt();
     })
@@ -116,8 +116,8 @@ function addRole() {
                 message: 'Which department do you want to add the new role to?',
                 choices: departments
             },
-        ]).then((ans) => {
-            connection.query(`INSERT INTO role SET ?`,
+        ]).then((response) => {
+            db.query(`INSERT INTO role SET ?`,
                 {
                     title: response.title,
                     salary: response.salary,
@@ -133,11 +133,12 @@ function addRole() {
 function addEmployee() {
     db.query(`SELECT * FROM role;`, (err, res) => {
         if (err) throw err;
-        let roles = res.map(role => ({ name: role.title, value: role.role_id }));
+        let roles = res.map(role => ({ name: role.title, value: role.id }));
+        console.log(roles);
         db.query(`SELECT * FROM employee;`, (err, res) => {
             if (err) throw err;
-            let employees = res.map(employee => ({ name: employee.first_name + ' ' + employee.last_name, value: employee.employee_id }));
-
+            let employees = res.map(employee => ({ name: employee.first_name + ' ' + employee.last_name, value: employee.id }));
+            console.log(employees);
             inquirer.prompt([
                 {
                     name: 'firstName',
@@ -151,17 +152,18 @@ function addEmployee() {
                 },
                 {
                     name: 'role',
-                    type: 'rawlist',
+                    type: 'list',
                     message: 'What is the new employee\'s title?',
                     choices: roles
                 },
                 {
                     name: 'manager',
-                    type: 'rawlist',
+                    type: 'list',
                     message: 'Who is the new employee\'s manager?',
                     choices: employees
                 }
             ]).then((response) => {
+                console.log(response);
                 db.query(`INSERT INTO employee SET ?`,
                     {
                         first_name: response.firstName,
@@ -171,16 +173,10 @@ function addEmployee() {
                     },
                     (err, res) => {
                         if (err) throw err;
-                    })
-                db.query(`INSERT INTO role SET ?`,
-                    {
-                        department_id: response.dept,
-                    },
-                    (err, res) => {
-                        if (err) throw err;
                         console.log(`\n ${response.firstName} ${response.lastName} successfully added to database! \n`);
                         firstPrompt();
                     })
+                
             })
         })
     })
@@ -192,28 +188,28 @@ updateEmployeeRole = () => {
         let roles = res.map(role => ({ name: role.title, value: role.role_id }));
         db.query(`SELECT * FROM employee;`, (err, res) => {
             if (err) throw err;
-            let employees = res.map(employee => ({ name: employee.first_name + ' ' + employee.last_name, value: employee.employee_id }));
+            let employees = res.map(employee => ({ name: employee.first_name + ' ' + employee.last_name, value: employee.id }));
             inquirer.prompt([
                 {
                     name: 'employee',
-                    type: 'rawlist',
+                    type: 'list',
                     message: 'Which employee would you like to update the role for?',
                     choices: employees
                 },
                 {
                     name: 'newRole',
-                    type: 'rawlist',
+                    type: 'list',
                     message: 'What should the employee\'s new role be?',
                     choices: roles
                 },
             ]).then((response) => {
-                connection.query(`UPDATE employee SET ? WHERE ?`,
+                db.query(`UPDATE employee SET ? WHERE ?`,
                     [
                         {
                             role_id: response.newRole,
                         },
                         {
-                            employee_id: response.employee,
+                            id: response.employee,
                         },
                     ],
                     (err, res) => {
