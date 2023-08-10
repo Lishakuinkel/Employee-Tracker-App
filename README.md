@@ -11,10 +11,10 @@ Then start the server"
 ``npm start``
 
 
-##Contributing
+## Contributing
 Contributing is welcomed! Please submit a pull request.
 
-##Resources
+## Resources
 https://www.npmjs.com/package/sequelize
 
 https://www.w3schools.com/nodejs/nodejs_mysql.asp
