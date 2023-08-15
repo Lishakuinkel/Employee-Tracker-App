@@ -185,7 +185,7 @@ function addEmployee() {
 updateEmployeeRole = () => {
     db.query(`SELECT * FROM role;`, (err, res) => {
         if (err) throw err;
-        let roles = res.map(role => ({ name: role.title, value: role.role_id }));
+        let roles = res.map(role => ({ name: role.title, value: role.id }));
         db.query(`SELECT * FROM employee;`, (err, res) => {
             if (err) throw err;
             let employees = res.map(employee => ({ name: employee.first_name + ' ' + employee.last_name, value: employee.id }));
@@ -206,7 +206,7 @@ updateEmployeeRole = () => {
                 db.query(`UPDATE employee SET ? WHERE ?`,
                     [
                         {
-                            role_id: response.newRole,
+                            id: response.newRole,
                         },
                         {
                             id: response.employee,
